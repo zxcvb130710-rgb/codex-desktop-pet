@@ -1,0 +1,40 @@
+name: Package downloads
+
+# This workflow produces downloadable artifacts. It does not publish a release.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Apple Silicon runner
+        run: test "$(uname -m)" = arm64
+      - name: Build and test
+        run: |
+          zsh macos/build.sh
+          python3 -B -m unittest discover -s tests -v
+          "macos/.build/apps.noindex/GPT 桌宠.app/Contents/MacOS/GPTCompanion" --self-test
+          codesign --verify --deep --strict "macos/.build/apps.noindex/GPT 桌宠.app"
+      - name: Create archives and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          pet_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' macos/Info.plist)
+          mkdir -p dist staging/codex-desktop-pet-macos-arm64
+          git archive --format=zip --prefix=codex-desktop-pet/ --output="dist/codex-desktop-pet-${pet_version}-source.zip" HEAD
+          ditto "macos/.build/apps.noindex/GPT 桌宠.app" "staging/codex-desktop-pet-macos-arm64/GPT 桌宠.app"
+          cp LICENSE ASSET_LICENSE.md README.md README.en.md staging/codex-desktop-pet-macos-arm64/
+          ditto -c -k --sequesterRsrc --keepParent staging/codex-desktop-pet-macos-arm64 "dist/codex-desktop-pet-${pet_version}-macos-arm64.zip"
+          (cd dist && shasum -a 256 ./*.zip > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: codex-desktop-pet-downloads
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14

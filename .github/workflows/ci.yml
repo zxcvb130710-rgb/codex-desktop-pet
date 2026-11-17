@@ -1,0 +1,38 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hooks:
+    name: Python hook tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test local event bridge
+        run: python3 -B -m unittest discover -s tests -v
+
+  macos:
+    name: macOS build and native self-test
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Apple Silicon runner
+        run: test "$(uname -m)" = arm64
+      - name: Build
+        run: zsh macos/build.sh
+      - name: Test rendering and state handling
+        run: '"macos/.build/apps.noindex/GPT 桌宠.app/Contents/MacOS/GPTCompanion" --self-test'
+      - name: Verify ad-hoc code signature
+        run: 'codesign --verify --deep --strict "macos/.build/apps.noindex/GPT 桌宠.app"'
