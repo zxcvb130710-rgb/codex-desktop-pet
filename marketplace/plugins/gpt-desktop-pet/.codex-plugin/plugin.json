@@ -1,0 +1,16 @@
+{
+  "name": "gpt-desktop-pet",
+  "version": "0.1.11",
+  "description": "跟随 Codex 思考程度滑块切换五档桌宠形象，并同步任务开始、结束和中断。",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "GPT 桌宠",
+    "shortDescription": "随 Codex 任务切换动作的桌面伙伴",
+    "longDescription": "通过 macOS 辅助功能读取 Codex 的 Light、Medium、High、Extra High、Ultra 档位并立即切换形象，五档均有独立待机与施法立绘。提交任务时施法，完成或中断时回到待机；任务状态同步须先在 Codex 中信任 hooks。",
+    "developerName": "Pitter",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
+  }
+}
