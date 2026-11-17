@@ -1,0 +1,5 @@
+Use case: identity-preserve
+Asset type: matching thinking/working pose for a desktop companion.
+The input is the approved idle character for this reasoning level. Change only the right arm's pose: raise the right hand gently to waist/chest height, palm up, conjuring a small delicate lavender magic orb above it. Keep the left hand supporting the existing teal GPT emblem exactly as it is.
+Preserve the exact same character face, expression, hair, horns, crown, wings, tail, gown, ornament complexity, adult body proportions, silver-lavender palette, illustration style, full-body framing, canvas and silhouette scale. Do not upgrade the outfit or add a halo or large effects. This should be a matching second pose, not a redesign.
+Keep the background perfectly uniform flat pure chroma yellow RGB(255,255,0). Do not add a floor, shadow, scenery, lettering, extra logos, caption or watermark. Keep all horns, wing tips, gown and feet entirely inside the frame.
