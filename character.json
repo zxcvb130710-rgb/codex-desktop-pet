@@ -1,0 +1,165 @@
+{
+  "id": "gpt-companion",
+  "name": "GPT 桌宠",
+  "modes": {
+    "low": {
+      "label": "Light",
+      "idle": "assets/light-idle.png",
+      "thinking": "assets/light-thinking.png"
+    },
+    "medium": {
+      "label": "Medium",
+      "idle": "assets/medium-idle.png",
+      "thinking": "assets/medium-thinking.png"
+    },
+    "high": {
+      "label": "High",
+      "idle": "assets/high-idle.png",
+      "thinking": "assets/high-thinking.png"
+    },
+    "xhigh": {
+      "label": "Extra High",
+      "idle": "assets/xhigh-idle.png",
+      "thinking": "assets/xhigh-thinking.png"
+    },
+    "ultra": {
+      "label": "Ultra",
+      "idle": "assets/ultra-idle.png",
+      "thinking": "assets/ultra-thinking.png"
+    }
+  },
+  "default": {
+    "reasoningEffort": "high",
+    "activity": "idle"
+  },
+  "poseMapping": "抬手施法图暂定为思考中，垂手图暂定为待机。",
+  "assets": {
+    "high-thinking": {
+      "source": "high-thinking.png",
+      "width": 1194,
+      "height": 1317,
+      "preview": "high-thinking.webp",
+      "previewBytes": 164526,
+      "sha256": "2fd89b6ef4481366ff400295901867e93fd9856867f6cd6a7e7be13d0e0ff1f2",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    "high-idle": {
+      "source": "high-idle.png",
+      "width": 1194,
+      "height": 1317,
+      "preview": "high-idle.webp",
+      "previewBytes": 137636,
+      "sha256": "b21d28297ce2c484152a6b56e484a2ba1f1fb26356ce6e60040273fe8d007287",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    "xhigh-thinking": {
+      "source": "xhigh-thinking.png",
+      "width": 1230,
+      "height": 1278,
+      "preview": "xhigh-thinking.webp",
+      "previewBytes": 190896,
+      "sha256": "f91de81b93583d556c7bc6623022d908db5d0d23a7add7433693e8b85f360d50",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    "xhigh-idle": {
+      "source": "xhigh-idle.png",
+      "width": 1230,
+      "height": 1278,
+      "preview": "xhigh-idle.webp",
+      "previewBytes": 176266,
+      "sha256": "b18d4db9a6c5f1a59270941ef803f4bb95aa509504eb964982ac306d4c810541",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    "light-idle": {
+      "source": "light-idle.png",
+      "width": 1194,
+      "height": 1317,
+      "preview": "light-idle.webp",
+      "previewBytes": 99540,
+      "sha256": "82ef86353f4766546e7472f5fd68cb1add1f12f636859640b2b131f034f21ad8",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "generation": "gpt-image-2 with user configured API; prompts/; local chroma key extraction"
+    },
+    "light-thinking": {
+      "source": "light-thinking.png",
+      "width": 1194,
+      "height": 1317,
+      "preview": "light-thinking.webp",
+      "previewBytes": 98448,
+      "sha256": "9a55e4c81b5cf437c7189813452c2335bc54ddcbaf0d5575d98297bb60c8b349",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "generation": "gpt-image-2 with user configured API; prompts/; local chroma key extraction"
+    },
+    "medium-idle": {
+      "source": "medium-idle.png",
+      "width": 1194,
+      "height": 1317,
+      "preview": "medium-idle.webp",
+      "previewBytes": 110356,
+      "sha256": "38113c92c2b1709248b90607262224682d72c0b1f0391d536d783d069451e154",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "generation": "gpt-image-2 with user configured API; prompts/; local chroma key extraction"
+    },
+    "medium-thinking": {
+      "source": "medium-thinking.png",
+      "width": 1194,
+      "height": 1317,
+      "preview": "medium-thinking.webp",
+      "previewBytes": 109018,
+      "sha256": "733854839ce66691989b7741483b87920e9de3442f37f9e530c902a903d98134",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "generation": "gpt-image-2 with user configured API; prompts/; local chroma key extraction"
+    },
+    "ultra-idle": {
+      "source": "ultra-idle.png",
+      "width": 1344,
+      "height": 1344,
+      "preview": "ultra-idle.webp",
+      "previewBytes": 558140,
+      "sha256": "db151254a37fb9a85c1c72b86fd59c95e813563e65a33d78119e924ff12b1670",
+      "alphaExtrema": [0, 255],
+      "generation": "gpt-image-2 with user configured API; prompts/ultra-idle.txt; alpha cleanup"
+    },
+    "ultra-thinking": {
+      "source": "ultra-thinking.png",
+      "width": 1344,
+      "height": 1344,
+      "preview": "ultra-thinking.webp",
+      "previewBytes": 436932,
+      "sha256": "b98df73858e8bb24dfffb6c44f37a3db80255b91b2caca2c9b2c622b586b66a3",
+      "alphaExtrema": [0, 255],
+      "generation": "gpt-image-2 with user configured API; prompts/ultra-thinking.txt; alpha cleanup and chroma key extraction"
+    }
+  },
+  "sliderMapping": {
+    "Light": "low",
+    "Medium": "medium",
+    "High": "high",
+    "Extra High": "xhigh",
+    "Ultra": "ultra"
+  }
+}
