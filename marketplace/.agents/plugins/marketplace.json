@@ -1,0 +1,12 @@
+{
+  "name": "pitter-desktop-pets",
+  "interface": { "displayName": "GPT Desktop Pets" },
+  "plugins": [
+    {
+      "name": "gpt-desktop-pet",
+      "source": { "source": "local", "path": "./plugins/gpt-desktop-pet" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Productivity"
+    }
+  ]
+}
