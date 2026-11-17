@@ -1,0 +1,41 @@
+name: Bug report / 问题反馈
+description: Report a reproducible desktop pet problem / 反馈可复现的桌宠问题
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not include chat transcripts, API keys, authentication files, or complete Codex databases.
+        请勿上传聊天全文、API 密钥、认证文件或完整 Codex 数据库。
+  - type: input
+    id: versions
+    attributes:
+      label: Versions / 版本
+      description: macOS, Codex, and desktop pet versions; Apple Silicon model if relevant.
+      placeholder: macOS … / Codex … / desktop pet …
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps and result / 复现步骤与结果
+      description: Describe what you did, what you expected, and what happened.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected feature / 受影响功能
+      options:
+        - Reasoning level sync / 思考档位同步
+        - Task start and finish / 任务开始与结束
+        - Installation or build / 安装或构建
+        - Appearance or animation / 形象或动画
+        - Other / 其他
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: Menu status / 桌宠菜单状态
+      description: Copy the relevant menu status or attach a cropped screenshot. Redact session IDs and other personal information.
