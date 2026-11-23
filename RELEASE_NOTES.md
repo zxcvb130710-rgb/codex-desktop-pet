@@ -1,3 +1,12 @@
+# 0.1.12 · 中文档位联动修复
+
+- 适配新版 Codex 的「轻度、中、高、极高、Ultra」，切换档位时桌宠会使用对应形象。旧版滑块和英文档位也可继续使用。
+- 桌宠右键菜单使用相同的中文档位名。
+- 在本机用 Codex 26.1117.41037 确认联动恢复。五档解析与十种形象通过原生自检。
+
+从源码安装时，解压后在项目根目录运行 `zsh install-plugin.command`。
+若更新后滑块联动提示缺少权限，请在 macOS「辅助功能」中移除旧的 GPT 桌宠条目，再添加并开启新版应用。
+
 # 0.1.11 · Initial public source release
 
 Native macOS desktop companion for Codex, with five reasoning-level appearances

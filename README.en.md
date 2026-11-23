@@ -9,6 +9,7 @@ A native Swift / AppKit companion for macOS. Its appearance follows the Codex re
 ## Features
 
 - Five appearances: Light, Medium, High, Extra High, and Ultra, each with idle and working artwork.
+- Supports the Simplified Chinese effort picker (轻度, 中, 高, 极高, Ultra). The pet's menu uses those labels.
 - Live effort selection through macOS Accessibility; no message submission needed.
 - Task lifecycle via Codex plugin hooks, including concurrent chats.
 - A draggable transparent window with scaling, floating, breathing, halos, and particles; respects Reduce Motion.
