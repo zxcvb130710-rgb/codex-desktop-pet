@@ -861,7 +861,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc private func showHelp() {
         let alert = NSAlert()
         alert.messageText = "GPT 桌宠"
-        alert.informativeText = "拖动人物：移动位置\n右键人物：切换五档形象和大小，开关动态效果\n双击人物：手动切换待机／思考中\n菜单栏星光图标：隐藏、显示或退出\n\n待机时轻微呼吸、浮动；施法时有星光和缓慢旋转的光环。Ultra 使用独立的四翼、晶冠和三重星环立绘，光效更强。动态效果遵循系统「减少动态效果」设置。\n\n开启「跟随 Codex」，并在 macOS 辅助功能中允许 GPT 桌宠。打开 Codex 的思考程度选择器，拖动到 Light、Medium、High、Extra High 或 Ultra，桌宠会直接换形象，不用发送消息；关闭选择器后保留上次读到的程度。旧版四档滑块仍受支持。\n\n任务开始、完成和中断仍由插件 hooks 同步，首次使用须在 Codex 中信任 hooks。手动切换思考程度会暂停联动，可重新勾选恢复；切换动作不会关闭思考程度联动，动作仍会随下一次任务事件更新。"
+        alert.informativeText = "拖动人物：移动位置\n右键人物：切换五档形象和大小，开关动态效果\n双击人物：手动切换待机／思考中\n菜单栏星光图标：隐藏、显示或退出\n\n待机时轻微呼吸、浮动；施法时有星光和缓慢旋转的光环。Ultra 使用独立的四翼、晶冠和三重星环立绘，光效更强。动态效果遵循系统「减少动态效果」设置。\n\n开启「跟随 Codex」，并在 macOS 辅助功能中允许 GPT 桌宠。打开 Codex 的思考程度选择器，切到轻度、中、高、极高或 Ultra，桌宠会直接换形象，不用发送消息；关闭选择器后保留上次读到的程度。旧版四档滑块仍受支持。\n\n任务开始、完成和中断仍由插件 hooks 同步，首次使用须在 Codex 中信任 hooks。手动切换思考程度会暂停联动，可重新勾选恢复；切换动作不会关闭思考程度联动，动作仍会随下一次任务事件更新。"
         alert.addButton(withTitle: "知道了")
         NSApp.activate(ignoringOtherApps: true)
         alert.runModal()
@@ -910,11 +910,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         for (label, effort) in [("6.1 Sol Light, 1 of 5.", "low"), ("6.1 Sol Medium, 2 of 5.", "medium"), ("6.1 Sol High, 3 of 5.", "high"), ("6.1 Sol Extra High, 4 of 5.", "xhigh"), ("6.1 Sol Ultra, 5 of 5.", "ultra")] {
             guard CodexSelection.powerControl(role: "AXMenuItem", name: "Power", help: label, classes: [])?.effort == effort else { throw PetError.missingResource("Power 档位说明解析") }
         }
-        // The shipped zh-CN picker uses these strings, not literal English names.
-        for (label, effort) in [("轻度", "low"), ("中", "medium"), ("高", "high"), ("极高", "xhigh"), ("Ultra", "ultra")] {
-            let announcement = "6.1 Sol \(label)，第 2 项，共 5 项。\n使用左右箭头键调整强度"
+        for (index, label) in ["轻度", "中", "高", "极高", "Ultra"].enumerated() {
+            let effort = CodexSelection.efforts[index]
+            let announcement = "6.1 Sol \(label)，第 \(index + 1) 项，共 5 项。\n使用左右方向键调整强度"
+            let option = ["ExplicitOption-z7EHeC"]
             guard CodexSelection.powerControl(role: "AXMenuItem", name: "强度", help: announcement, classes: [])?.effort == effort,
-                  CodexSelection.powerControl(role: "AXMenuItem", name: "", help: announcement, classes: [], description: "强度")?.effort == effort else { throw PetError.missingResource("中文强度控件解析") }
+                  CodexSelection.powerControl(role: "AXMenuItem", name: "", help: announcement, classes: [], description: "强度")?.effort == effort,
+                  CodexSelection.powerControl(role: "AXButton", name: "选择推理强度", help: "", classes: [], value: announcement)?.effort == effort,
+                  CodexSelection.powerControl(role: "AXCheckBox", name: "6.1 Sol \(label)", help: "", classes: option, selected: true)?.effort == effort,
+                  CodexSelection.powerControl(role: "AXCheckBox", name: label, help: "", classes: option) == nil,
+                  CodexSelection.powerControl(role: "AXCheckBox", name: label, help: "", classes: [], selected: true) == nil,
+                  CodexSelection(effort: effort).label == label else { throw PetError.missingResource("中文强度控件解析") }
         }
         for (name, label, effort) in [("強度", "輕度", "low"), ("效能", "極高", "xhigh")] {
             guard CodexSelection.powerControl(role: "AXMenuItem", name: name, help: "6.1 Sol \(label)，第 2 項，共 5 項。", classes: [])?.effort == effort else { throw PetError.missingResource("繁体强度控件解析") }

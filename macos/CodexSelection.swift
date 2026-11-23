@@ -4,7 +4,7 @@ import ApplicationServices
 struct CodexSelection: Equatable {
     static let efforts = ["low", "medium", "high", "xhigh", "ultra"]
     let effort: String
-    var label: String { ["low": "Light", "medium": "Medium", "high": "High", "xhigh": "Extra High", "ultra": "Ultra"][effort] ?? effort }
+    var label: String { ["low": "轻度", "medium": "中", "high": "高", "xhigh": "极高", "ultra": "Ultra"][effort] ?? effort }
 
     static func named(_ text: String) -> CodexSelection? {
         let value = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -38,13 +38,24 @@ struct CodexSelection: Equatable {
         return named(String(clause[range]).trimmingCharacters(in: .whitespaces))
     }
 
-    static func powerControl(role: String, name: String, help: String, classes: [String], description: String = "") -> CodexSelection? {
-        // Names and effort translations verified against the bundled picker.
-        let powerNames = ["Power", "强度", "強度", "效能"]
-        let isPower = powerNames.contains(name) || powerNames.contains(description)
-        let isPicker = classes.contains { $0.hasPrefix("SliderKeyboardControl-") || $0.hasPrefix("ModelPickerTrigger") }
-        guard ["AXMenuItem", "AXButton", "AXPopUpButton"].contains(role), isPower || isPicker else { return nil }
-        return powerLabel(help) ?? powerLabel(description) ?? (isPicker ? powerLabel(name) : nil)
+    static func isPowerControl(name: String, description: String, classes: [String]) -> Bool {
+        let names = ["Power", "Select power", "Select reasoning effort", "强度", "強度", "效能",
+                     "思考强度", "思考程度", "推理强度", "选择推理强度", "選擇推理強度"]
+        return names.contains(name) || names.contains(description)
+            || classes.contains { $0.hasPrefix("SliderKeyboardControl-") }
+    }
+
+    static func powerControl(role: String, name: String, help: String, classes: [String],
+                             description: String = "", value: String = "", selected: Bool = false) -> CodexSelection? {
+        if classes.contains(where: { $0.hasPrefix("ExplicitOption-") }) {
+            // Chromium exposes aria-pressed buttons as toggle buttons (AXCheckBox).
+            guard selected, ["AXCheckBox", "AXRadioButton", "AXButton"].contains(role) else { return nil }
+            return powerLabel(name) ?? powerLabel(description)
+        }
+        let isPicker = classes.contains { $0.hasPrefix("ModelPickerTrigger") }
+        let isPower = isPowerControl(name: name, description: description, classes: classes)
+        guard ["AXMenuItem", "AXButton", "AXPopUpButton", "AXSlider"].contains(role), isPower || isPicker else { return nil }
+        return powerLabel(value) ?? powerLabel(help) ?? powerLabel(description) ?? powerLabel(name)
     }
 
     static func resolveEffort(selection: CodexSelection?, eventEffort: String?, current: String) -> String {
@@ -99,7 +110,6 @@ final class CodexSelectionMonitor {
     }
 
     private static func sliderSelection(_ element: AXUIElement) -> CodexSelection? {
-        guard attribute(element, kAXRoleAttribute) as? String == kAXSliderRole else { return nil }
         for name in [kAXValueDescriptionAttribute, kAXValueAttribute] {
             if let text = attribute(element, name) as? String, let selected = CodexSelection.named(text) { return selected }
         }
@@ -111,26 +121,50 @@ final class CodexSelectionMonitor {
         return nil
     }
 
-    private static func controlSelection(_ element: AXUIElement) -> CodexSelection? {
-        if let selected = sliderSelection(element) { return selected }
-        let role = attribute(element, kAXRoleAttribute) as? String ?? ""
-        guard ["AXMenuItem", "AXButton", "AXPopUpButton"].contains(role) else { return nil }
+    private static func controlSelection(_ element: AXUIElement, role: String) -> CodexSelection? {
+        if role == kAXSliderRole, let selected = sliderSelection(element) { return selected }
+        guard ["AXMenuItem", "AXButton", "AXPopUpButton", "AXSlider", "AXCheckBox", "AXRadioButton"].contains(role) else { return nil }
         let title = attribute(element, kAXTitleAttribute) as? String ?? ""
         let description = attribute(element, kAXDescriptionAttribute) as? String ?? ""
         let classes = attribute(element, "AXDOMClassList") as? [String] ?? []
+        if classes.contains(where: { $0.hasPrefix("ExplicitOption-") }) {
+            let pressed = (attribute(element, kAXValueAttribute) as? NSNumber)?.intValue == 1
+            let selected = pressed || (attribute(element, kAXSelectedAttribute) as? NSNumber)?.boolValue == true
+            return CodexSelection.powerControl(role: role, name: title, help: "", classes: classes,
+                                               description: description, selected: selected)
+        }
+        let isPower = CodexSelection.isPowerControl(name: title, description: description, classes: classes)
+        guard isPower || classes.contains(where: { $0.hasPrefix("ModelPickerTrigger") }) else { return nil }
         let help = attribute(element, kAXHelpAttribute) as? String ?? ""
-        return CodexSelection.powerControl(role: role, name: title, help: help, classes: classes, description: description)
+        let value = attribute(element, kAXValueAttribute) as? String ?? ""
+        if let selected = CodexSelection.powerControl(role: role, name: title, help: help, classes: classes,
+                                                     description: description, value: value) { return selected }
+        guard isPower, let parent = elementAttribute(element, kAXParentAttribute),
+              let siblings = attribute(parent, kAXChildrenAttribute) as? [AXUIElement] else { return nil }
+        // The picker also publishes the current value as a sibling live announcement.
+        for sibling in siblings.prefix(8) {
+            guard let classes = attribute(sibling, "AXDOMClassList") as? [String],
+                  classes.contains(where: { $0.hasPrefix("KeyboardAnnouncement-") }) else { continue }
+            let children = attribute(sibling, kAXChildrenAttribute) as? [AXUIElement] ?? []
+            for announcement in [sibling] + children.prefix(3) {
+                for name in [kAXValueAttribute, kAXTitleAttribute, kAXDescriptionAttribute] {
+                    if let text = attribute(announcement, name) as? String,
+                       let selected = CodexSelection.powerLabel(text) { return selected }
+                }
+            }
+        }
+        return nil
     }
 
     private static func selection(in scan: inout CodexSelectionScan<AXUIElement>, limit: Int, deadline: CFAbsoluteTime) -> CodexSelection? {
         var count = 0
         while count < limit, CFAbsoluteTimeGetCurrent() < deadline, let element = scan.next() {
             count += 1
-            if let selected = controlSelection(element) {
+            let role = attribute(element, kAXRoleAttribute) as? String ?? ""
+            if let selected = controlSelection(element, role: role) {
                 return selected
             }
             // Text values and conversation contents are never read or recorded.
-            let role = attribute(element, kAXRoleAttribute) as? String ?? ""
             if [kAXStaticTextRole, kAXTextAreaRole, kAXTextFieldRole, kAXImageRole].contains(role) { continue }
             if let children = attribute(element, kAXChildrenAttribute) as? [AXUIElement] {
                 scan.append(children)
@@ -156,7 +190,6 @@ final class CodexSelectionMonitor {
             backgroundScan.reset([])
         }
         if let focused = elementAttribute(application, kAXFocusedUIElementAttribute) {
-            if let selected = controlSelection(focused) { return selected }
             // A mouse-opened picker can focus a different item in its menu.
             // Search that menu before walking the full application window.
             var ancestor: AXUIElement? = focused
@@ -172,6 +205,8 @@ final class CodexSelectionMonitor {
                 if [kAXWindowRole, "AXWebArea", kAXApplicationRole].contains(role) { break }
                 ancestor = elementAttribute(node, kAXParentAttribute)
             }
+            if let role = attribute(focused, kAXRoleAttribute) as? String,
+               let selected = controlSelection(focused, role: role) { return selected }
         }
         if backgroundScan.isExhausted {
             var roots = (attribute(application, kAXWindowsAttribute) as? [AXUIElement] ?? []).reversed().map { $0 }
